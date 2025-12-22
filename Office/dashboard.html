@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="ha">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Hisbah – Officer Dashboard</title>
+
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+
+  <style>
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+    }
+  </style>
+</head>
+<body class="bg-gray-100 min-h-screen">
+
+  <!-- HEADER -->
+  <header class="bg-green-600 text-white p-4 flex justify-between items-center">
+    <div class="flex items-center gap-2">
+      <i class="fas fa-shield-halved text-xl"></i>
+      <span class="font-bold text-lg">Hisbah Officer</span>
+    </div>
+    <button onclick="logout()" class="text-sm bg-green-700 px-3 py-1 rounded">
+      Fita
+    </button>
+  </header>
+
+  <!-- MAIN -->
+  <main class="p-4 max-w-6xl mx-auto">
+
+    <!-- WELCOME -->
+    <div class="mb-4">
+      <h1 class="text-xl font-bold text-gray-800">
+        Barka da zuwa 👋
+      </h1>
+      <p class="text-sm text-gray-600">
+        Wannan shi ne officer dashboard ɗinka
+      </p>
+    </div>
+
+    <!-- STATS -->
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+
+      <div class="bg-white rounded-lg shadow p-4">
+        <p class="text-sm text-gray-500">Jimlar Rahotanni</p>
+        <h2 class="text-2xl font-bold text-gray-800" id="totalReports">0</h2>
+      </div>
+
+      <div class="bg-white rounded-lg shadow p-4">
+        <p class="text-sm text-gray-500">Ana Dubawa</p>
+        <h2 class="text-2xl font-bold text-yellow-600" id="pendingReports">0</h2>
+      </div>
+
+      <div class="bg-white rounded-lg shadow p-4">
+        <p class="text-sm text-gray-500">Ana Aiki</p>
+        <h2 class="text-2xl font-bold text-blue-600" id="inProgressReports">0</h2>
+      </div>
+
+      <div class="bg-white rounded-lg shadow p-4">
+        <p class="text-sm text-gray-500">An Kammala</p>
+        <h2 class="text-2xl font-bold text-green-600" id="resolvedReports">0</h2>
+      </div>
+
+    </div>
+
+    <!-- RECENT REPORTS LIST -->
+    <div class="bg-white rounded-lg shadow p-4">
+      <h2 class="font-bold text-gray-800 mb-3">Rahotanni na Kwanan Nan</h2>
+
+      <div id="reportsList" class="space-y-3 text-sm text-gray-700">
+        <!-- Reports za su shigo nan -->
+      </div>
+    </div>
+
+  </main>
+
+  <!-- JS LOGIC -->
+  <script>
+    // MISALI DATA (za a maye gurbinsa da API)
+    const reports = [
+      { id: 1, type: "Hayaniya", status: "pending", date: "2025-01-10", description: "Hayaniya sosai a unguwa." },
+      { id: 2, type: "Shaye-shaye", status: "in-progress", date: "2025-01-08", description: "An kama mutane suna shaye-shaye." },
+      { id: 3, type: "Faɗa", status: "resolved", date: "2025-01-05", description: "An warware rikici tsakanin mutane biyu." }
+    ];
+
+    function loadDashboard() {
+      document.getElementById("totalReports").textContent = reports.length;
+      document.getElementById("pendingReports").textContent =
+        reports.filter(r => r.status === "pending").length;
+      document.getElementById("inProgressReports").textContent =
+        reports.filter(r => r.status === "in-progress").length;
+      document.getElementById("resolvedReports").textContent =
+        reports.filter(r => r.status === "resolved").length;
+
+      const list = document.getElementById("reportsList");
+      list.innerHTML = "";
+
+      reports.forEach(report => {
+        const statusColor =
+          report.status === "pending" ? "text-yellow-600" :
+          report.status === "in-progress" ? "text-blue-600" :
+          "text-green-600";
+
+        const statusText =
+          report.status === "pending" ? "Ana dubawa" :
+          report.status === "in-progress" ? "Ana aiki" :
+          "An kammala";
+
+        list.innerHTML += `
+          <div class="border rounded p-3">
+            <div class="flex justify-between items-center mb-1">
+              <p class="font-semibold">${report.type}</p>
+              <span class="${statusColor} font-semibold">${statusText}</span>
+            </div>
+            <p class="text-xs text-gray-500 mb-2">${report.date}</p>
+            <p class="text-sm text-gray-700 mb-2">${report.description}</p>
+            <div class="flex gap-2">
+              <button onclick="updateStatus(${report.id}, 'in-progress')" class="bg-blue-600 text-white px-3 py-1 rounded text-xs">
+                ✅ Aiki
+              </button>
+              <button onclick="updateStatus(${report.id}, 'resolved')" class="bg-green-600 text-white px-3 py-1 rounded text-xs">
+                ✔ Kammala
+              </button>
+            </div>
+          </div>
+        `;
+      });
+    }
+
+    function updateStatus(id, newStatus) {
+      const report = reports.find(r => r.id === id);
+      if (report) {
+        report.status = newStatus;
+        loadDashboard();
+        alert(`Rahoton "${report.type}" an sabunta zuwa "${newStatus}".`);
+      }
+    }
+
+    function logout() {
+      // clear token example
+      // localStorage.removeItem("token");
+      window.location.href = "../login.html";
+    }
+
+    loadDashboard();
+  </script>
+
+</body>
+</html>
