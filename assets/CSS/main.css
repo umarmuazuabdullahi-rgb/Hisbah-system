@@ -1,0 +1,54 @@
+/* HISBAH GLOBAL STYLES */
+
+:root {
+  --primary: #15803d;
+  --secondary: #065f46;
+  --danger: #dc2626;
+  --bg: #f3f4f6;
+}
+
+body {
+  background-color: var(--bg);
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+/* Buttons */
+.btn {
+  padding: 10px 16px;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.btn-primary {
+  background: var(--primary);
+  color: #fff;
+}
+
+.btn-danger {
+  background: var(--danger);
+  color: #fff;
+}
+
+/* Status Badges */
+.badge {
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: bold;
+}
+
+.badge-pending { background: #fde68a; color: #92400e; }
+.badge-progress { background: #bfdbfe; color: #1e3a8a; }
+.badge-resolved { background: #bbf7d0; color: #065f46; }
+
+/* Tables */
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+th, td {
+  padding: 10px;
+  border-bottom: 1px solid #e5e7eb;
+}
