@@ -4,78 +4,42 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Hisbah – Admin Dashboard</title>
-
-  <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
-
-  <!-- Font Awesome -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
-
-  <style>
-    body {
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
-    }
-  </style>
 </head>
 <body class="bg-gray-100 min-h-screen">
 
-  <!-- HEADER -->
   <header class="bg-green-700 text-white p-4 flex justify-between items-center">
     <div class="flex items-center gap-2">
       <i class="fas fa-user-shield text-xl"></i>
       <span class="font-bold text-lg">Hisbah Admin</span>
     </div>
-    <button onclick="logout()" class="text-sm bg-green-800 px-3 py-1 rounded">
-      Fita
-    </button>
+    <button onclick="logout()" class="text-sm bg-green-800 px-3 py-1 rounded">Fita</button>
   </header>
 
-  <!-- MAIN -->
   <main class="p-4 max-w-7xl mx-auto">
-
-    <!-- WELCOME -->
     <div class="mb-4">
-      <h1 class="text-xl font-bold text-gray-800">
-        Barka da zuwa Admin 👋
-      </h1>
-      <p class="text-sm text-gray-600">
-        Wannan shi ne dashboard ɗinka na gudanarwa
-      </p>
+      <h1 class="text-xl font-bold text-gray-800">Barka da zuwa Admin 👋</h1>
+      <p class="text-sm text-gray-600">Wannan shi ne dashboard ɗinka na gudanarwa</p>
     </div>
 
-    <!-- STATS -->
     <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-
       <div class="bg-white rounded-lg shadow p-4">
         <p class="text-sm text-gray-500">Jimlar Users</p>
         <h2 class="text-2xl font-bold text-gray-800" id="totalUsers">0</h2>
       </div>
-
       <div class="bg-white rounded-lg shadow p-4">
         <p class="text-sm text-gray-500">Jimlar Rahotanni</p>
         <h2 class="text-2xl font-bold text-gray-800" id="totalReports">0</h2>
       </div>
-
       <div class="bg-white rounded-lg shadow p-4">
         <p class="text-sm text-gray-500">Rahotanni Ana Dubawa</p>
         <h2 class="text-2xl font-bold text-yellow-600" id="pendingReports">0</h2>
       </div>
-
       <div class="bg-white rounded-lg shadow p-4">
         <p class="text-sm text-gray-500">Rahotanni An Kammala</p>
         <h2 class="text-2xl font-bold text-green-600" id="resolvedReports">0</h2>
       </div>
-
-    </div>
-
-    <!-- ACTIONS -->
-    <div class="flex gap-3 mb-6">
-      <button onclick="exportPDF()" class="flex-1 text-center bg-blue-600 text-white py-3 rounded-lg font-semibold">
-        📄 Export PDF
-      </button>
-      <button onclick="exportExcel()" class="flex-1 text-center bg-gray-800 text-white py-3 rounded-lg font-semibold">
-        📊 Export Excel
-      </button>
     </div>
 
     <!-- USERS TABLE -->
@@ -93,7 +57,7 @@
             </tr>
           </thead>
           <tbody id="usersList">
-            <!-- Users za su shigo nan -->
+            <tr><td colspan="5" class="px-3 py-2 text-gray-500">Ana kokarin daukowa...</td></tr>
           </tbody>
         </table>
       </div>
@@ -115,116 +79,117 @@
             </tr>
           </thead>
           <tbody id="reportsList">
-            <!-- Reports za su shigo nan -->
+            <tr><td colspan="6" class="px-3 py-2 text-gray-500">Ana kokarin daukowa...</td></tr>
           </tbody>
         </table>
       </div>
     </div>
-
   </main>
 
-  <!-- JS LOGIC -->
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+  <script src="../firebase-config.js"></script>
+
   <script>
-    // MISALI DATA (za a maye gurbinsa da API)
-    const users = [
-      { id: 1, name: "Abdullahi Umar", email: "abdullahi@example.com", role: "citizen" },
-      { id: 2, name: "Aisha Bello", email: "aisha@example.com", role: "officer" },
-      { id: 3, name: "Admin", email: "admin@example.com", role: "admin" }
-    ];
-
-    const reports = [
-      { id: 1, type: "Hayaniya", user: "Abdullahi Umar", status: "pending", date: "2025-01-10" },
-      { id: 2, type: "Shaye-shaye", user: "Aisha Bello", status: "in-progress", date: "2025-01-08" },
-      { id: 3, type: "Faɗa", user: "Abdullahi Umar", status: "resolved", date: "2025-01-05" }
-    ];
-
     function loadDashboard() {
-      document.getElementById("totalUsers").textContent = users.length;
-      document.getElementById("totalReports").textContent = reports.length;
-      document.getElementById("pendingReports").textContent =
-        reports.filter(r => r.status === "pending").length;
-      document.getElementById("resolvedReports").textContent =
-        reports.filter(r => r.status === "resolved").length;
+      // Load Users from Firestore
+      db.collection("users").get()
+        .then((querySnapshot) => {
+          const usersList = document.getElementById("usersList");
+          usersList.innerHTML = "";
+          
+          let userCount = 0;
+          querySnapshot.forEach((doc) => {
+            userCount++;
+            const user = doc.data();
+            usersList.innerHTML += `
+              <tr>
+                <td class="px-3 py-2">${userCount}</td>
+                <td class="px-3 py-2">${user.name}</td>
+                <td class="px-3 py-2">${user.email}</td>
+                <td class="px-3 py-2">${user.role}</td>
+                <td class="px-3 py-2">
+                  <button onclick="deleteUser('${doc.id}')" class="bg-red-600 hover:bg-red-700 text-white px-2 py-1 rounded text-xs">Goge</button>
+                </td>
+              </tr>
+            `;
+          });
+          document.getElementById("totalUsers").textContent = userCount;
+        });
 
-      // Load Users
-      const usersList = document.getElementById("usersList");
-      usersList.innerHTML = "";
-      users.forEach((user, index) => {
-        usersList.innerHTML += `
-          <tr>
-            <td class="px-3 py-2">${index + 1}</td>
-            <td class="px-3 py-2">${user.name}</td>
-            <td class="px-3 py-2">${user.email}</td>
-            <td class="px-3 py-2">${user.role}</td>
-            <td class="px-3 py-2">
-              <button onclick="deleteUser(${user.id})" class="bg-red-600 text-white px-2 py-1 rounded text-xs">
-                Delete
-              </button>
-            </td>
-          </tr>
-        `;
-      });
+      // Load Reports from Firestore
+      db.collection("reports").orderBy("createdAt", "desc").get()
+        .then((querySnapshot) => {
+          const reportsList = document.getElementById("reportsList");
+          reportsList.innerHTML = "";
 
-      // Load Reports
-      const reportsList = document.getElementById("reportsList");
-      reportsList.innerHTML = "";
-      reports.forEach((report, index) => {
-        const statusColor =
-          report.status === "pending" ? "text-yellow-600" :
-          report.status === "in-progress" ? "text-blue-600" :
-          "text-green-600";
+          let total = 0, pending = 0, resolved = 0;
 
-        reportsList.innerHTML += `
-          <tr>
-            <td class="px-3 py-2">${index + 1}</td>
-            <td class="px-3 py-2">${report.type}</td>
-            <td class="px-3 py-2">${report.user}</td>
-            <td class="px-3 py-2 ${statusColor} font-semibold">${report.status}</td>
-            <td class="px-3 py-2">${report.date}</td>
-            <td class="px-3 py-2">
-              <button onclick="deleteReport(${report.id})" class="bg-red-600 text-white px-2 py-1 rounded text-xs">
-                Delete
-              </button>
-            </td>
-          </tr>
-        `;
-      });
+          querySnapshot.forEach((doc) => {
+            const report = doc.data();
+            const reportId = doc.id;
+            total++;
+
+            if (report.status === "pending") pending++;
+            if (report.status === "resolved") resolved++;
+
+            const statusColor =
+              report.status === "pending" ? "text-yellow-600" :
+              report.status === "in-progress" ? "text-blue-600" : "text-green-600";
+
+            const statusText =
+              report.status === "pending" ? "Ana dubawa" :
+              report.status === "in-progress" ? "Ana aiki" : "An kammala";
+
+            reportsList.innerHTML += `
+              <tr>
+                <td class="px-3 py-2">${total}</td>
+                <td class="px-3 py-2">${report.type}</td>
+                <td class="px-3 py-2">${report.user}</td>
+                <td class="px-3 py-2 ${statusColor} font-semibold">${statusText}</td>
+                <td class="px-3 py-2">${report.date}</td>
+                <td class="px-3 py-2">
+                  <button onclick="deleteReport('${reportId}')" class="bg-red-600 hover:bg-red-700 text-white px-2 py-1 rounded text-xs">Goge</button>
+                </td>
+              </tr>
+            `;
+          });
+
+          document.getElementById("totalReports").textContent = total;
+          document.getElementById("pendingReports").textContent = pending;
+          document.getElementById("resolvedReports").textContent = resolved;
+        });
     }
 
     function deleteUser(id) {
-      const index = users.findIndex(u => u.id === id);
-      if(index !== -1) {
-        if(confirm("Kuna so a goge wannan user?")) {
-          users.splice(index, 1);
-          loadDashboard();
-        }
+      if (confirm("Kuna so a goge wannan user?")) {
+        db.collection("users").doc(id).delete()
+          .then(() => {
+            loadDashboard();
+            alert("An goge user cikin nasara.");
+          });
       }
     }
 
     function deleteReport(id) {
-      const index = reports.findIndex(r => r.id === id);
-      if(index !== -1) {
-        if(confirm("Kuna so a goge wannan rahoto?")) {
-          reports.splice(index, 1);
-          loadDashboard();
-        }
+      if (confirm("Kuna so a goge wannan rahoto?")) {
+        db.collection("reports").doc(id).delete()
+          .then(() => {
+            loadDashboard();
+            alert("An goge rahoto cikin nasara.");
+          });
       }
     }
 
-    function exportPDF() {
-      alert("Za a fitar da PDF (real backend/API needed).");
-    }
-
-    function exportExcel() {
-      alert("Za a fitar da Excel (real backend/API needed).");
-    }
-
     function logout() {
-      window.location.href = "../login.html";
+      auth.signOut().then(() => {
+        localStorage.removeItem("currentUser");
+        window.location.href = "../index.html";
+      });
     }
 
     loadDashboard();
   </script>
-
 </body>
 </html>
