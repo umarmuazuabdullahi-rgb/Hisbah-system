@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="ha">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Hisbah – Rahotanni Na</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+</head>
+<body class="bg-gray-100 min-h-screen">
+
+  <header class="bg-green-600 text-white p-4 flex items-center gap-3">
+    <a href="dashboard.html" class="text-white"><i class="fas fa-arrow-left"></i></a>
+    <h1 class="font-bold text-lg">Rahotanni Na</h1>
+  </header>
+
+  <main class="p-4 max-w-3xl mx-auto">
+    <div class="bg-white rounded-lg shadow p-4">
+      <h2 class="font-bold text-gray-800 mb-3">Dukkan Rahotanni Na</h2>
+      <div id="reportsList" class="space-y-3 text-sm text-gray-700">
+        <p class="text-gray-500">Ana kokarin daukowa...</p>
+      </div>
+    </div>
+  </main>
+
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+  <script src="firebase-config.js"></script>
+
+  <script>
+    const currentUser = JSON.parse(localStorage.getItem("currentUser"));
+    const userId = currentUser ? currentUser.uid : null;
+
+    function loadReports() {
+      const list = document.getElementById("reportsList");
+
+      if (!userId) {
+        list.innerHTML = "<p class='text-red-500'>Kuskure: Ba a tantance asusunka ba.</p>";
+        return;
+      }
+
+      // Karanto rahotannin da ke da userId daidai da na wannan user din kadai
+      db.collection("reports")
+        .where("userId", "==", userId)
+        .orderBy("createdAt", "desc")
+        .get()
+        .then((querySnapshot) => {
+          list.innerHTML = "";
+
+          if (querySnapshot.empty) {
+            list.innerHTML = "<p class='text-gray-500'>Ba ka tura kowane rahoto ba tukuna.</p>";
+            return;
+          }
+
+          querySnapshot.forEach((doc) => {
+            const report = doc.data();
+            const statusColor =
+              report.status === "pending" ? "text-yellow-600" :
+              report.status === "in-progress" ? "text-blue-600" : "text-green-600";
+
+            const statusText =
+              report.status === "pending" ? "Ana dubawa" :
+              report.status === "in-progress" ? "Ana aiki" : "An kammala";
+
+            list.innerHTML += `
+              <div class="border rounded p-3 flex justify-between items-center bg-gray-50">
+                <div>
+                  <p class="font-semibold">${report.type}</p>
+                  <p class="text-xs text-gray-500">${report.date} | ${report.location}</p>
+                </div>
+                <span class="${statusColor} font-semibold">${statusText}</span>
+              </div>
+            `;
+          });
+        })
+        .catch((error) => {
+          list.innerHTML = `<p class='text-red-500'>An samu matsala wajen daukowa.</p>`;
+          console.error(error);
+        });
+    }
+
+    loadReports();
+  </script>
+</body>
+</html>
