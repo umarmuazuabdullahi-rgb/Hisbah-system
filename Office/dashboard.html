@@ -4,151 +4,138 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Hisbah – Officer Dashboard</title>
-
-  <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
-
-  <!-- Font Awesome -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
-
-  <style>
-    body {
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
-    }
-  </style>
 </head>
 <body class="bg-gray-100 min-h-screen">
 
-  <!-- HEADER -->
   <header class="bg-green-600 text-white p-4 flex justify-between items-center">
     <div class="flex items-center gap-2">
       <i class="fas fa-shield-halved text-xl"></i>
       <span class="font-bold text-lg">Hisbah Officer</span>
     </div>
-    <button onclick="logout()" class="text-sm bg-green-700 px-3 py-1 rounded">
-      Fita
-    </button>
+    <button onclick="logout()" class="text-sm bg-green-700 px-3 py-1 rounded">Fita</button>
   </header>
 
-  <!-- MAIN -->
   <main class="p-4 max-w-6xl mx-auto">
-
-    <!-- WELCOME -->
     <div class="mb-4">
-      <h1 class="text-xl font-bold text-gray-800">
-        Barka da zuwa 👋
-      </h1>
-      <p class="text-sm text-gray-600">
-        Wannan shi ne officer dashboard ɗinka
-      </p>
+      <h1 class="text-xl font-bold text-gray-800" id="welcomeOfficer">Barka da zuwa 👋</h1>
+      <p class="text-sm text-gray-600">Wannan shi ne officer dashboard ɗinka</p>
     </div>
 
-    <!-- STATS -->
     <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-
       <div class="bg-white rounded-lg shadow p-4">
         <p class="text-sm text-gray-500">Jimlar Rahotanni</p>
         <h2 class="text-2xl font-bold text-gray-800" id="totalReports">0</h2>
       </div>
-
       <div class="bg-white rounded-lg shadow p-4">
         <p class="text-sm text-gray-500">Ana Dubawa</p>
         <h2 class="text-2xl font-bold text-yellow-600" id="pendingReports">0</h2>
       </div>
-
       <div class="bg-white rounded-lg shadow p-4">
         <p class="text-sm text-gray-500">Ana Aiki</p>
         <h2 class="text-2xl font-bold text-blue-600" id="inProgressReports">0</h2>
       </div>
-
       <div class="bg-white rounded-lg shadow p-4">
         <p class="text-sm text-gray-500">An Kammala</p>
         <h2 class="text-2xl font-bold text-green-600" id="resolvedReports">0</h2>
       </div>
-
     </div>
 
-    <!-- RECENT REPORTS LIST -->
     <div class="bg-white rounded-lg shadow p-4">
       <h2 class="font-bold text-gray-800 mb-3">Rahotanni na Kwanan Nan</h2>
-
       <div id="reportsList" class="space-y-3 text-sm text-gray-700">
-        <!-- Reports za su shigo nan -->
+        <p class="text-gray-500">Ana kokarin daukowa...</p>
       </div>
     </div>
-
   </main>
 
-  <!-- JS LOGIC -->
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+  <!-- Lura da ../ a nan -->
+  <script src="../firebase-config.js"></script>
+
   <script>
-    // MISALI DATA (za a maye gurbinsa da API)
-    const reports = [
-      { id: 1, type: "Hayaniya", status: "pending", date: "2025-01-10", description: "Hayaniya sosai a unguwa." },
-      { id: 2, type: "Shaye-shaye", status: "in-progress", date: "2025-01-08", description: "An kama mutane suna shaye-shaye." },
-      { id: 3, type: "Faɗa", status: "resolved", date: "2025-01-05", description: "An warware rikici tsakanin mutane biyu." }
-    ];
+    const currentUser = JSON.parse(localStorage.getItem("currentUser"));
+    if (currentUser) {
+      document.getElementById("welcomeOfficer").textContent = `Barka da zuwa ${currentUser.name} 👋`;
+    }
 
     function loadDashboard() {
-      document.getElementById("totalReports").textContent = reports.length;
-      document.getElementById("pendingReports").textContent =
-        reports.filter(r => r.status === "pending").length;
-      document.getElementById("inProgressReports").textContent =
-        reports.filter(r => r.status === "in-progress").length;
-      document.getElementById("resolvedReports").textContent =
-        reports.filter(r => r.status === "resolved").length;
+      db.collection("reports").orderBy("createdAt", "desc").get()
+        .then((querySnapshot) => {
+          const list = document.getElementById("reportsList");
+          list.innerHTML = "";
 
-      const list = document.getElementById("reportsList");
-      list.innerHTML = "";
+          let total = 0, pending = 0, progress = 0, resolved = 0;
 
-      reports.forEach(report => {
-        const statusColor =
-          report.status === "pending" ? "text-yellow-600" :
-          report.status === "in-progress" ? "text-blue-600" :
-          "text-green-600";
+          if (querySnapshot.empty) {
+            list.innerHTML = "<p class='text-gray-500'>Babu wani rahoto tukuna.</p>";
+            return;
+          }
 
-        const statusText =
-          report.status === "pending" ? "Ana dubawa" :
-          report.status === "in-progress" ? "Ana aiki" :
-          "An kammala";
+          querySnapshot.forEach((doc) => {
+            const report = doc.data();
+            const reportId = doc.id;
+            total++;
 
-        list.innerHTML += `
-          <div class="border rounded p-3">
-            <div class="flex justify-between items-center mb-1">
-              <p class="font-semibold">${report.type}</p>
-              <span class="${statusColor} font-semibold">${statusText}</span>
-            </div>
-            <p class="text-xs text-gray-500 mb-2">${report.date}</p>
-            <p class="text-sm text-gray-700 mb-2">${report.description}</p>
-            <div class="flex gap-2">
-              <button onclick="updateStatus(${report.id}, 'in-progress')" class="bg-blue-600 text-white px-3 py-1 rounded text-xs">
-                ✅ Aiki
-              </button>
-              <button onclick="updateStatus(${report.id}, 'resolved')" class="bg-green-600 text-white px-3 py-1 rounded text-xs">
-                ✔ Kammala
-              </button>
-            </div>
-          </div>
-        `;
-      });
+            if (report.status === "pending") pending++;
+            if (report.status === "in-progress") progress++;
+            if (report.status === "resolved") resolved++;
+
+            const statusColor =
+              report.status === "pending" ? "text-yellow-600" :
+              report.status === "in-progress" ? "text-blue-600" : "text-green-600";
+
+            const statusText =
+              report.status === "pending" ? "Ana dubawa" :
+              report.status === "in-progress" ? "Ana aiki" : "An kammala";
+
+            list.innerHTML += `
+              <div class="border rounded p-3 bg-gray-50 shadow-sm">
+                <div class="flex justify-between items-center mb-1">
+                  <p class="font-semibold text-base">${report.type}</p>
+                  <span class="${statusColor} font-semibold">${statusText}</span>
+                </div>
+                <p class="text-xs text-gray-500 mb-1">Kwanan Wata: ${report.date} | Wuri: ${report.location}</p>
+                <p class="text-sm text-gray-700 mb-2">${report.description}</p>
+                <div class="flex gap-2">
+                  <button onclick="updateStatus('${reportId}', 'in-progress')" class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded text-xs">✅ Aiki</button>
+                  <button onclick="updateStatus('${reportId}', 'resolved')" class="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded text-xs">✔ Kammala</button>
+                </div>
+              </div>
+            `;
+          });
+
+          document.getElementById("totalReports").textContent = total;
+          document.getElementById("pendingReports").textContent = pending;
+          document.getElementById("inProgressReports").textContent = progress;
+          document.getElementById("resolvedReports").textContent = resolved;
+        });
     }
 
     function updateStatus(id, newStatus) {
-      const report = reports.find(r => r.id === id);
-      if (report) {
-        report.status = newStatus;
+      db.collection("reports").doc(id).update({
+        status: newStatus
+      })
+      .then(() => {
         loadDashboard();
-        alert(`Rahoton "${report.type}" an sabunta zuwa "${newStatus}".`);
-      }
+        alert("An sabunta matsayin rahoto cikin nasara.");
+      })
+      .catch((error) => {
+        alert("An samu matsala wajen sabuntawa: " + error.message);
+      });
     }
 
     function logout() {
-      // clear token example
-      // localStorage.removeItem("token");
-      window.location.href = "../login.html";
+      auth.signOut().then(() => {
+        localStorage.removeItem("currentUser");
+        window.location.href = "../index.html";
+      });
     }
 
     loadDashboard();
   </script>
-
 </body>
 </html>
