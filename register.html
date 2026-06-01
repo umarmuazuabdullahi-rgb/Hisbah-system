@@ -4,25 +4,12 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Hisbah – Rajistar Sabon Mai Amfani</title>
-
-  <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
-
-  <!-- Font Awesome -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
-
-  <style>
-    body {
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
-    }
-  </style>
 </head>
 <body class="bg-gray-100 min-h-screen flex items-center justify-center">
 
-  <!-- Container -->
   <div class="w-full max-w-md bg-white rounded-xl shadow-lg p-6">
-
-    <!-- Logo / Title -->
     <div class="text-center mb-6">
       <div class="mx-auto w-14 h-14 rounded-full bg-green-600 flex items-center justify-center text-white text-2xl">
         <i class="fas fa-shield-halved"></i>
@@ -31,152 +18,90 @@
       <p class="text-sm text-gray-500">Rajistar Sabon Mai Amfani</p>
     </div>
 
-    <!-- Register Form -->
     <form id="registerForm" class="space-y-4">
-
-      <!-- Full Name -->
       <div>
-        <label class="block text-sm font-medium text-gray-700 mb-1">
-          Cikakken Suna
-        </label>
-        <input
-          type="text"
-          id="fullName"
-          placeholder="Misali: Abdullahi Umar Muazu"
-          class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
-          required
-        />
+        <label class="block text-sm font-medium text-gray-700 mb-1">Cikakken Suna</label>
+        <input type="text" id="fullName" placeholder="Abdullahi Umar" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500" required />
       </div>
 
-      <!-- Phone -->
       <div>
-        <label class="block text-sm font-medium text-gray-700 mb-1">
-          Lambar Waya
-        </label>
-        <input
-          type="tel"
-          id="phone"
-          placeholder="08012345678"
-          class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
-          required
-        />
+        <label class="block text-sm font-medium text-gray-700 mb-1">Lambar Waya</label>
+        <input type="tel" id="phone" placeholder="08012345678" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500" required />
       </div>
 
-      <!-- Email -->
       <div>
-        <label class="block text-sm font-medium text-gray-700 mb-1">
-          Email (idan akwai)
-        </label>
-        <input
-          type="email"
-          id="email"
-          placeholder="example@email.com"
-          class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
-        />
+        <label class="block text-sm font-medium text-gray-700 mb-1">Email Address</label>
+        <input type="email" id="email" placeholder="example@email.com" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500" required />
       </div>
 
-      <!-- Password -->
       <div>
-        <label class="block text-sm font-medium text-gray-700 mb-1">
-          Kalmar Sirri
-        </label>
-        <input
-          type="password"
-          id="password"
-          placeholder="••••••••"
-          class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
-          required
-        />
+        <label class="block text-sm font-medium text-gray-700 mb-1">Kalmar Sirri</label>
+        <input type="password" id="password" placeholder="••••••••" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500" required />
       </div>
 
-      <!-- Confirm Password -->
       <div>
-        <label class="block text-sm font-medium text-gray-700 mb-1">
-          Tabbatar da Kalmar Sirri
-        </label>
-        <input
-          type="password"
-          id="confirmPassword"
-          placeholder="••••••••"
-          class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
-          required
-        />
+        <label class="block text-sm font-medium text-gray-700 mb-1">Tabbatar da Kalmar Sirri</label>
+        <input type="password" id="confirmPassword" placeholder="••••••••" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500" required />
       </div>
 
-      <!-- Role (Hidden – default Citizen) -->
-      <input type="hidden" id="role" value="citizen"/>
-
-      <!-- Error Message -->
-      <div id="errorMsg" class="hidden text-sm text-red-600 bg-red-50 p-2 rounded">
-      </div>
-
-      <!-- Submit Button -->
-      <button
-        type="submit"
-        class="w-full bg-green-600 hover:bg-green-700 text-white py-2 rounded-lg font-semibold transition"
-      >
-        Rajista
-      </button>
-
+      <div id="errorMsg" class="hidden text-sm text-red-600 bg-red-50 p-2 rounded"></div>
+      <button type="submit" class="w-full bg-green-600 hover:bg-green-700 text-white py-2 rounded-lg font-semibold transition">Rajista</button>
     </form>
 
-    <!-- Footer -->
     <div class="text-center mt-4 text-sm text-gray-600">
-      Kana da account?
-      <a href="login.html" class="text-green-600 font-semibold hover:underline">
-        Shiga
-      </a>
+      Kana da account? <a href="index.html" class="text-green-600 font-semibold hover:underline">Shiga</a>
     </div>
-
   </div>
 
-  <!-- JS Logic -->
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+  <script src="firebase-config.js"></script>
+
   <script>
     const form = document.getElementById("registerForm");
     const errorMsg = document.getElementById("errorMsg");
 
     form.addEventListener("submit", function (e) {
       e.preventDefault();
-
       const name = document.getElementById("fullName").value.trim();
       const phone = document.getElementById("phone").value.trim();
       const email = document.getElementById("email").value.trim();
       const password = document.getElementById("password").value;
       const confirmPassword = document.getElementById("confirmPassword").value;
 
-      // Simple validation (human-friendly)
       if (password !== confirmPassword) {
         errorMsg.textContent = "Kalmar sirri ba ta yi daidai ba.";
         errorMsg.classList.remove("hidden");
         return;
       }
 
-      if (password.length < 6) {
-        errorMsg.textContent = "Kalmar sirri ta kasance akalla haruffa 6.";
-        errorMsg.classList.remove("hidden");
-        return;
-      }
-
       errorMsg.classList.add("hidden");
 
-      // Example payload (ready for backend API)
-      const payload = {
-        name,
-        phone,
-        email,
-        password,
-        role: "citizen"
-      };
+      auth.createUserWithEmailAndPassword(email, password)
+        .then((userCredential) => {
+          const user = userCredential.user;
+          
+          // Adana sabon user a Firestore
+          const userData = {
+            uid: user.uid,
+            name: name,
+            phone: phone,
+            email: email,
+            role: "citizen"
+          };
 
-      console.log("REGISTER DATA:", payload);
-
-      // A nan za a haɗa API
-      // fetch('/api/auth/register', { method: 'POST', body: JSON.stringify(payload) })
-
-      alert("An yi rajista cikin nasara (misali).");
-      form.reset();
+          // Karin mataki: Hada user din a jerin dukkan users don Admin ya gani
+          db.collection("users").doc(user.uid).set(userData).then(() => {
+            alert("An yi rajista cikin nasara!");
+            window.location.href = "index.html";
+          });
+        })
+        .catch((error) => {
+          errorMsg.textContent = error.message;
+          errorMsg.classList.remove("hidden");
+        });
     });
   </script>
-
 </body>
 </html>
