@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="ha">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Hisbah – Dashboard</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+</head>
+<body class="bg-gray-100 min-h-screen">
+
+  <header class="bg-green-600 text-white p-4 flex justify-between items-center">
+    <div class="flex items-center gap-2">
+      <i class="fas fa-shield-halved text-xl"></i>
+      <span class="font-bold text-lg">Hisbah</span>
+    </div>
+    <button onclick="logout()" class="text-sm bg-green-700 px-3 py-1 rounded">Fita</button>
+  </header>
+
+  <main class="p-4 max-w-6xl mx-auto">
+    <div class="mb-4">
+      <h1 class="text-xl font-bold text-gray-800" id="welcomeUser">Barka da zuwa 👋</h1>
+      <p class="text-sm text-gray-600">Wannan shi ne dashboard ɗinka</p>
+    </div>
+
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+      <div class="bg-white rounded-lg shadow p-4">
+        <p class="text-sm text-gray-500">Jimlar Rahotanni</p>
+        <h2 class="text-2xl font-bold text-gray-800" id="totalReports">0</h2>
+      </div>
+      <div class="bg-white rounded-lg shadow p-4">
+        <p class="text-sm text-gray-500">Ana Dubawa</p>
+        <h2 class="text-2xl font-bold text-yellow-600" id="pendingReports">0</h2>
+      </div>
+      <div class="bg-white rounded-lg shadow p-4">
+        <p class="text-sm text-gray-500">Ana Aiki</p>
+        <h2 class="text-2xl font-bold text-blue-600" id="inProgressReports">0</h2>
+      </div>
+      <div class="bg-white rounded-lg shadow p-4">
+        <p class="text-sm text-gray-500">An Kammala</p>
+        <h2 class="text-2xl font-bold text-green-600" id="resolvedReports">0</h2>
+      </div>
+    </div>
+
+    <div class="flex gap-3 mb-6">
+      <a href="new-report.html" class="flex-1 text-center bg-green-600 text-white py-3 rounded-lg font-semibold">➕ Sabon Rahoto</a>
+      <a href="my-reports.html" class="flex-1 text-center bg-gray-800 text-white py-3 rounded-lg font-semibold">📄 Rahotanni Na</a>
+    </div>
+
+    <div class="bg-white rounded-lg shadow p-4">
+      <h2 class="font-bold text-gray-800 mb-3">Rahotanni na Kwanan Nan</h2>
+      <div id="reportsList" class="space-y-3 text-sm text-gray-700">
+        <p class="text-gray-500">Ana kokarin daukowa...</p>
+      </div>
+    </div>
+  </main>
+
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+  <script src="firebase-config.js"></script>
+
+  <script>
+    const currentUser = JSON.parse(localStorage.getItem("currentUser"));
+    if (currentUser) {
+      document.getElementById("welcomeUser").textContent = `Barka da zuwa ${currentUser.name} 👋`;
+    }
+
+    function loadDashboard() {
+      db.collection("reports").orderBy("createdAt", "desc").get()
+        .then((querySnapshot) => {
+          const list = document.getElementById("reportsList");
+          list.innerHTML = "";
+
+          let total = 0, pending = 0, progress = 0, resolved = 0;
+
+          if (querySnapshot.empty) {
+            list.innerHTML = "<p class='text-gray-500'>Babu wani rahoto tukuna.</p>";
+            return;
+          }
+
+          querySnapshot.forEach((doc) => {
+            const report = doc.data();
+            total++;
+            if (report.status === "pending") pending++;
+            if (report.status === "in-progress") progress++;
+            if (report.status === "resolved") resolved++;
+
+            // Nuna rahotanni guda 3 na farko a kwanan nan
+            if (total <= 3) {
+              const statusColor =
+                report.status === "pending" ? "text-yellow-600" :
+                report.status === "in-progress" ? "text-blue-600" : "text-green-600";
+
+              const statusText =
+                report.status === "pending" ? "Ana dubawa" :
+                report.status === "in-progress" ? "Ana aiki" : "An kammala";
+
+              list.innerHTML += `
+                <div class="border rounded p-3 flex justify-between items-center bg-gray-50">
+                  <div>
+                    <p class="font-semibold">${report.type}</p>
+                    <p class="text-xs text-gray-500">${report.date} | ${report.location}</p>
+                  </div>
+                  <span class="${statusColor} font-semibold">${statusText}</span>
+                </div>
+              `;
+            }
+          });
+
+          document.getElementById("totalReports").textContent = total;
+          document.getElementById("pendingReports").textContent = pending;
+          document.getElementById("inProgressReports").textContent = progress;
+          document.getElementById("resolvedReports").textContent = resolved;
+        })
+        .catch((error) => {
+          console.error("Kuskure wajen load data: ", error);
+        });
+    }
+
+    function logout() {
+      auth.signOut().then(() => {
+        localStorage.removeItem("currentUser");
+        window.location.href = "index.html";
+      });
+    }
+
+    loadDashboard();
+  </script>
+</body>
+</html>
